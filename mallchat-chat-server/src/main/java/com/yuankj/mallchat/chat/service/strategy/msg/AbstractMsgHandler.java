@@ -4,7 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.yuankj.mallchat.chat.dao.MessageDao;
 import com.yuankj.mallchat.chat.domain.entity.Message;
 import com.yuankj.mallchat.chat.domain.enums.MessageTypeEnum;
-import com.yuankj.mallchat.chat.domain.vo.request.ChatMessageReq;
+import com.yuankj.mallchat.chat.domain.vo.request.chat.ChatMessageReq;
 import com.yuankj.mallchat.chat.service.adapter.MessageAdapter;
 import com.yuankj.mallchat.common.utils.AssertUtil;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,7 @@
 package com.yuankj.mallchat.chat.service;
 
 import com.yuankj.mallchat.chat.domain.dto.MsgReadInfoDTO;
-import com.yuankj.mallchat.chat.domain.vo.request.*;
+import com.yuankj.mallchat.chat.domain.vo.request.chat.*;
 import com.yuankj.mallchat.chat.domain.vo.response.ChatMessageReadResp;
 import com.yuankj.mallchat.chat.domain.vo.response.ChatMessageResp;
 import com.yuankj.mallchat.common.domain.vo.response.CursorPageBaseResp;

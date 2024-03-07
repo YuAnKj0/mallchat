@@ -1,4 +1,4 @@
-package com.yuankj.mallchat.chat.domain.vo.request;
+package com.yuankj.mallchat.chat.domain.vo.request.chat;
 
 import com.yuankj.mallchat.common.domain.vo.request.CursorPageBaseReq;
 import io.swagger.annotations.ApiModelProperty;
@@ -9,21 +9,16 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 
-/**
- * @author Ykj
- * @date 2023/10/8 0008/22:46
- * @apiNote
- */
-
-
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChatMessagePageReq extends CursorPageBaseReq {
+public class ChatMessageReadReq extends CursorPageBaseReq {
+    @ApiModelProperty("消息id")
     @NotNull
-    @ApiModelProperty("会话id")
-    private Long roomId;
-}
-    
+    private Long msgId;
 
+    @ApiModelProperty("查询类型 1已读 2未读")
+    @NotNull
+    private Long searchType;
+}

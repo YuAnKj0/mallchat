@@ -4,7 +4,7 @@ package com.yuankj.mallchat.chat.dao;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yuankj.mallchat.chat.domain.entity.Message;
 import com.yuankj.mallchat.chat.domain.enums.MessageStatusEnum;
-import com.yuankj.mallchat.chat.domain.vo.request.ChatMessagePageReq;
+import com.yuankj.mallchat.chat.domain.vo.request.chat.ChatMessagePageReq;
 import com.yuankj.mallchat.chat.mapper.MessageMapper;
 import com.yuankj.mallchat.common.domain.vo.response.CursorPageBaseResp;
 import com.yuankj.mallchat.common.utils.CursorUtils;

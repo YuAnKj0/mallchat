@@ -1,7 +1,7 @@
 package com.yuankj.mallchat.chat.controller;
 
 import com.yuankj.mallchat.chat.domain.dto.MsgReadInfoDTO;
-import com.yuankj.mallchat.chat.domain.vo.request.*;
+import com.yuankj.mallchat.chat.domain.vo.request.chat.*;
 import com.yuankj.mallchat.chat.domain.vo.response.ChatMessageReadResp;
 import com.yuankj.mallchat.chat.service.ChatService;
 import com.yuankj.mallchat.common.annocation.FrequencyControl;
@@ -13,13 +13,10 @@ import com.yuankj.mallchat.user.domain.enums.BlackTypeEnum;
 import com.yuankj.mallchat.user.service.cache.UserCache;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Authorization;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.HashSet;

@@ -1,4 +1,4 @@
-package com.yuankj.mallchat.chat.domain.vo.request;
+package com.yuankj.mallchat.chat.domain.vo.request.chat;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;

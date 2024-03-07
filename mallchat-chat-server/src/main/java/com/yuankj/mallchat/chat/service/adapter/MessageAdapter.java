@@ -5,7 +5,7 @@ import com.yuankj.mallchat.chat.domain.entity.MessageMark;
 import com.yuankj.mallchat.chat.domain.enums.MessageMarkTypeEnum;
 import com.yuankj.mallchat.chat.domain.enums.MessageStatusEnum;
 import com.yuankj.mallchat.chat.domain.enums.MessageTypeEnum;
-import com.yuankj.mallchat.chat.domain.vo.request.ChatMessageReq;
+import com.yuankj.mallchat.chat.domain.vo.request.chat.ChatMessageReq;
 import com.yuankj.mallchat.chat.domain.vo.request.msg.TextMsgReq;
 import com.yuankj.mallchat.chat.domain.vo.response.ChatMessageResp;
 import com.yuankj.mallchat.chat.service.strategy.msg.AbstractMsgHandler;
