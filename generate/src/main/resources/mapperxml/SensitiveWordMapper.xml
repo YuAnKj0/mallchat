@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuankj.mallchat.mapper.SensitiveWordMapper">
+  <resultMap id="BaseResultMap" type="com.yuankj.mallchat.model.SensitiveWord">
+    <!--@mbg.generated-->
+    <!--@Table sensitive_word-->
+    <result column="word" jdbcType="VARCHAR" property="word" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    word
+  </sql>
+  <insert id="insert" parameterType="com.yuankj.mallchat.model.SensitiveWord">
+    <!--@mbg.generated-->
+    insert into sensitive_word (word)
+    values (#{word,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yuankj.mallchat.model.SensitiveWord">
+    <!--@mbg.generated-->
+    insert into sensitive_word
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="word != null">
+        word,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="word != null">
+        #{word,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+</mapper>

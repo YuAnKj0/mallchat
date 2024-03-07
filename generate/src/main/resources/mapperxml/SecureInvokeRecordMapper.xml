@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuankj.mallchat.mapper.SecureInvokeRecordMapper">
+  <resultMap id="BaseResultMap" type="com.yuankj.mallchat.model.SecureInvokeRecord">
+    <!--@mbg.generated-->
+    <!--@Table secure_invoke_record-->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="secure_invoke_json" jdbcType="VARCHAR" property="secureInvokeJson" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="next_retry_time" jdbcType="TIMESTAMP" property="nextRetryTime" />
+    <result column="retry_times" jdbcType="INTEGER" property="retryTimes" />
+    <result column="max_retry_times" jdbcType="INTEGER" property="maxRetryTimes" />
+    <result column="fail_reason" jdbcType="LONGVARCHAR" property="failReason" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, secure_invoke_json, `status`, next_retry_time, retry_times, max_retry_times, 
+    fail_reason, create_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <!--@mbg.generated-->
+    select 
+    <include refid="Base_Column_List" />
+    from secure_invoke_record
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    <!--@mbg.generated-->
+    delete from secure_invoke_record
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.yuankj.mallchat.model.SecureInvokeRecord" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into secure_invoke_record (secure_invoke_json, `status`, next_retry_time, 
+      retry_times, max_retry_times, fail_reason, 
+      create_time, update_time)
+    values (#{secureInvokeJson,jdbcType=VARCHAR}, #{status,jdbcType=TINYINT}, #{nextRetryTime,jdbcType=TIMESTAMP}, 
+      #{retryTimes,jdbcType=INTEGER}, #{maxRetryTimes,jdbcType=INTEGER}, #{failReason,jdbcType=LONGVARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.yuankj.mallchat.model.SecureInvokeRecord" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into secure_invoke_record
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="secureInvokeJson != null">
+        secure_invoke_json,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
+      <if test="nextRetryTime != null">
+        next_retry_time,
+      </if>
+      <if test="retryTimes != null">
+        retry_times,
+      </if>
+      <if test="maxRetryTimes != null">
+        max_retry_times,
+      </if>
+      <if test="failReason != null">
+        fail_reason,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="secureInvokeJson != null">
+        #{secureInvokeJson,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="nextRetryTime != null">
+        #{nextRetryTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="retryTimes != null">
+        #{retryTimes,jdbcType=INTEGER},
+      </if>
+      <if test="maxRetryTimes != null">
+        #{maxRetryTimes,jdbcType=INTEGER},
+      </if>
+      <if test="failReason != null">
+        #{failReason,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yuankj.mallchat.model.SecureInvokeRecord">
+    <!--@mbg.generated-->
+    update secure_invoke_record
+    <set>
+      <if test="secureInvokeJson != null">
+        secure_invoke_json = #{secureInvokeJson,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="nextRetryTime != null">
+        next_retry_time = #{nextRetryTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="retryTimes != null">
+        retry_times = #{retryTimes,jdbcType=INTEGER},
+      </if>
+      <if test="maxRetryTimes != null">
+        max_retry_times = #{maxRetryTimes,jdbcType=INTEGER},
+      </if>
+      <if test="failReason != null">
+        fail_reason = #{failReason,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yuankj.mallchat.model.SecureInvokeRecord">
+    <!--@mbg.generated-->
+    update secure_invoke_record
+    set secure_invoke_json = #{secureInvokeJson,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=TINYINT},
+      next_retry_time = #{nextRetryTime,jdbcType=TIMESTAMP},
+      retry_times = #{retryTimes,jdbcType=INTEGER},
+      max_retry_times = #{maxRetryTimes,jdbcType=INTEGER},
+      fail_reason = #{failReason,jdbcType=LONGVARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
