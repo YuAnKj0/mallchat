@@ -1,7 +1,7 @@
 package com.yuankj.mallchat.user.service;
 
+import com.mallchat.oss.domain.OssResp;
 import com.yuankj.mallchat.user.domain.vo.request.oss.UploadUrlReq;
-import com.yuankj.mallchat.user.domain.vo.response.oss.OssResp;
 
 public interface OssService {
 

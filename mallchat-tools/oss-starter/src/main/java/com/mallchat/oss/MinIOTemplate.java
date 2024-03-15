@@ -5,8 +5,9 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.file.FileNameUtil;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.StrUtil;
-import com.mallchat.oss.domaon.OssReq;
-import com.yuankj.mallchat.user.domain.vo.response.oss.OssResp;
+import com.mallchat.oss.domain.OssReq;
+
+import com.mallchat.oss.domain.OssResp;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.http.Method;

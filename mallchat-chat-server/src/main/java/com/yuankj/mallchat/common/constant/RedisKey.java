@@ -7,7 +7,8 @@ package com.yuankj.mallchat.common.constant;
  */
 
 public class RedisKey {
-    private static final String BASE_KEY = "mallchat:";
+	public static final String GROUP_FRIEND_STRING = "groupFriend:roomId_%d";
+	private static final String BASE_KEY = "mallchat:";
     
     /**
      * 在线用户列表

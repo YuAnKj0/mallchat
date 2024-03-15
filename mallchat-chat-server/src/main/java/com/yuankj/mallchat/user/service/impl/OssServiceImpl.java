@@ -1,12 +1,11 @@
 package com.yuankj.mallchat.user.service.impl;
 
 import com.mallchat.oss.MinIOTemplate;
-import com.mallchat.oss.domaon.OssReq;
-import com.yuankj.mallchat.common.exception.BusinessException;  
+import com.mallchat.oss.domain.OssReq;
+import com.mallchat.oss.domain.OssResp;
 import com.yuankj.mallchat.common.utils.AssertUtil;
 import com.yuankj.mallchat.user.domain.enums.OssSceneEnum;
 import com.yuankj.mallchat.user.domain.vo.request.oss.UploadUrlReq;
-import com.yuankj.mallchat.user.domain.vo.response.oss.OssResp;
 import com.yuankj.mallchat.user.service.OssService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

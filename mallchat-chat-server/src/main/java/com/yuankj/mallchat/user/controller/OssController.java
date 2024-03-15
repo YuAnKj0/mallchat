@@ -1,9 +1,9 @@
 package com.yuankj.mallchat.user.controller;
 
+import com.mallchat.oss.domain.OssResp;
 import com.yuankj.mallchat.common.domain.vo.response.ApiResult;
 import com.yuankj.mallchat.common.utils.RequestHolder;
 import com.yuankj.mallchat.user.domain.vo.request.oss.UploadUrlReq;
-import com.yuankj.mallchat.user.domain.vo.response.oss.OssResp;
 import com.yuankj.mallchat.user.service.OssService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
