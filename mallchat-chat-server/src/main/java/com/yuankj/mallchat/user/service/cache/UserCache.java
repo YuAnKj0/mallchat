@@ -110,5 +110,10 @@ public class UserCache {
         List<UserRole> userRoles = userRoleDao.listByUid(uid);
         return userRoles.stream().map(UserRole::getRoleId).collect(Collectors.toSet());
     }
+	
+	public Long getOnlineNum() {
+        String onlineKey = RedisKey.getKey(RedisKey.ONLINE_UID_ZET);
+        return RedisUtils.zCard(onlineKey);
+	}
 }
 

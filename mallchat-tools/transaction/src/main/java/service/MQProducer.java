@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 
+import javax.annotation.Resource;
+
 /**
  * @author Ykj
  * @date 2024-02-29/11:07

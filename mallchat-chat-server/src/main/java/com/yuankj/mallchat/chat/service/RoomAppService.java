@@ -1,6 +1,7 @@
 package com.yuankj.mallchat.chat.service;
 
 import com.yuankj.mallchat.chat.domain.vo.response.ChatRoomResp;
+import com.yuankj.mallchat.chat.domain.vo.response.MemberResp;
 import com.yuankj.mallchat.common.domain.vo.request.CursorPageBaseReq;
 import com.yuankj.mallchat.common.domain.vo.response.CursorPageBaseResp;
 
@@ -16,4 +17,6 @@ public interface RoomAppService {
 	ChatRoomResp getContactDetail(Long uid, long id);
 	
 	ChatRoomResp getContactDetailByFriend(Long uid, Long uid1);
+	
+	MemberResp getGroupDetail(Long uid, long id);
 }

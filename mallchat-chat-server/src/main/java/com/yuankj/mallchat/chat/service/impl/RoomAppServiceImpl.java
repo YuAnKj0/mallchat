@@ -4,11 +4,15 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Pair;
 import com.sun.xml.internal.bind.v2.TODO;
 import com.yuankj.mallchat.chat.dao.ContactDao;
+import com.yuankj.mallchat.chat.dao.GroupMemberDao;
 import com.yuankj.mallchat.chat.dao.MessageDao;
 import com.yuankj.mallchat.chat.domain.dto.RoomBaseInfo;
 import com.yuankj.mallchat.chat.domain.entity.*;
+import com.yuankj.mallchat.chat.domain.enums.GroupRoleAPPEnum;
+import com.yuankj.mallchat.chat.domain.enums.HotFlagEnum;
 import com.yuankj.mallchat.chat.domain.enums.RoomTypeEnum;
 import com.yuankj.mallchat.chat.domain.vo.response.ChatRoomResp;
+import com.yuankj.mallchat.chat.domain.vo.response.MemberResp;
 import com.yuankj.mallchat.chat.service.RoomAppService;
 import com.yuankj.mallchat.chat.service.RoomService;
 import com.yuankj.mallchat.chat.service.adapter.ChatAdapter;
@@ -21,7 +25,9 @@ import com.yuankj.mallchat.chat.service.strategy.msg.MsgHandlerFactory;
 import com.yuankj.mallchat.common.domain.vo.request.CursorPageBaseReq;
 import com.yuankj.mallchat.common.domain.vo.response.CursorPageBaseResp;
 import com.yuankj.mallchat.common.utils.AssertUtil;
+import com.yuankj.mallchat.user.dao.UserDao;
 import com.yuankj.mallchat.user.domain.entity.User;
+import com.yuankj.mallchat.user.service.cache.UserCache;
 import com.yuankj.mallchat.user.service.cache.UserInfoCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ZSetOperations;
@@ -56,6 +62,12 @@ public class RoomAppServiceImpl implements RoomAppService {
 	private MessageDao messageDao;
 	@Autowired
 	private RoomService roomService;
+	@Autowired
+	private UserCache userCache;
+	@Autowired
+	private GroupMemberDao groupMemberDao;
+	@Autowired
+	private UserDao userDao;
 	/**
 	 * @param request 
 	 * @param uid
@@ -206,6 +218,49 @@ public class RoomAppServiceImpl implements RoomAppService {
 		RoomFriend friendRoom =roomService.getFriendRoom(uid,friendUid);
 		AssertUtil.isNotEmpty(friendRoom, "他不是您的好友");
 		return buildContactResp(uid, Collections.singletonList(friendRoom.getRoomId())).get(0);
+	}
+	
+	/**
+	 * @param uid 
+	 * @param roomId
+	 * @return
+	 */
+	@Override
+	public MemberResp getGroupDetail(Long uid, long roomId) {
+		RoomGroup roomGroup = roomGroupCache.get(roomId);
+		Room room = roomCache.get(roomId);
+		AssertUtil.isNotEmpty(roomGroup, "ID有误");
+		Long onlineNum;
+		if(isHotGroup(room)){
+			// 热点群从redis取人数
+			onlineNum = userCache.getOnlineNum();
+		}else {
+			List<Long> memberUidList = groupMemberDao.getMemberUidList(roomGroup.getId());
+			onlineNum=userDao.getOnlineCount(memberUidList).longValue();
+		}
+		GroupRoleAPPEnum groupRole=getGroupRole(uid, roomGroup, room);
+		
+		return MemberResp.builder()
+				.avatar(roomGroup.getAvatar())
+				.roomId(roomId)
+				.groupName(roomGroup.getName())
+				.onlineNum(onlineNum)
+				.role(groupRole.getType()).build();
+	}
+	
+	private GroupRoleAPPEnum getGroupRole(Long uid, RoomGroup roomGroup, Room room) {
+		GroupMember member = Objects.isNull(uid) ? null : groupMemberDao.getMember(roomGroup.getId(), uid);
+		if (Objects.nonNull(member)) {
+			return GroupRoleAPPEnum.of(member.getRole());
+		} else if (isHotGroup(room)) {
+			return GroupRoleAPPEnum.MEMBER;
+		} else {
+			return GroupRoleAPPEnum.REMOVE;
+		}
+	}
+	
+	private boolean isHotGroup(Room room) {
+		return HotFlagEnum.YES.getType().equals(room.getHotFlag());
 	}
 	
 	private Double getCursorOrNull(String cursor) {

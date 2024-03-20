@@ -1,10 +1,12 @@
 package com.yuankj.mallchat.user.dao;
 
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yuankj.mallchat.user.domain.entity.User;
+import com.yuankj.mallchat.user.domain.enums.ChatActiveStatusEnum;
 import com.yuankj.mallchat.user.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 
@@ -45,5 +47,10 @@ public class UserDao extends ServiceImpl<UserMapper, User> {
 	public List<User> getFriendList(List<Long> friendUids) {
 		return lambdaQuery().in(User::getId, friendUids)
 				.select(User::getId,User::getActiveStatus,User::getName,User::getAvatar).list();
+	}
+	
+	public Number getOnlineCount(List<Long> memberUidList) {
+		return lambdaQuery().eq(User::getActiveStatus, ChatActiveStatusEnum.ONLINE.getStatus())
+				.in(CollectionUtil.isNotEmpty(memberUidList),User::getId,memberUidList).count();
 	}
 }
