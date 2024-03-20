@@ -38,6 +38,12 @@ public class RoomController {
 		return ApiResult.success(roomService.getGroupDetail(uid, request.getId()));
 	}
 	
+	@GetMapping("/public/group/member/page")
+	@ApiOperation("群成员列表")
+	public ApiResult<CursorPageBaseResp<ChatMemberResp>> getMemberPage(@Valid MemberReq request) {
+		return ApiResult.success(roomService.getMemberPage(request));
+	}
+	
   
   
 }
