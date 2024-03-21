@@ -2,11 +2,14 @@ package com.yuankj.mallchat.chat.service;
 
 import com.yuankj.mallchat.chat.domain.dto.MsgReadInfoDTO;
 import com.yuankj.mallchat.chat.domain.vo.request.chat.*;
+import com.yuankj.mallchat.chat.domain.vo.request.member.MemberReq;
 import com.yuankj.mallchat.chat.domain.vo.response.ChatMessageReadResp;
 import com.yuankj.mallchat.chat.domain.vo.response.ChatMessageResp;
 import com.yuankj.mallchat.common.domain.vo.response.CursorPageBaseResp;
+import com.yuankj.mallchat.user.domain.vo.response.ws.ChatMemberResp;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Ykj
@@ -36,4 +39,6 @@ public interface ChatService {
 	Collection<MsgReadInfoDTO> getMsgReadInfo(Long uid, ChatMessageReadInfoReq request);
 	
 	void msgRead(Long uid, ChatMessageMemberReq request);
+	
+	CursorPageBaseResp<ChatMemberResp> getMemberPage(List<Long> memberUidList, MemberReq request);
 }

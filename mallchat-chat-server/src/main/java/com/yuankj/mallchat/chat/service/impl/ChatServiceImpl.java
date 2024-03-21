@@ -4,20 +4,24 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.lang.Pair;
 import com.yuankj.mallchat.chat.dao.*;
 import com.yuankj.mallchat.chat.domain.dto.MsgReadInfoDTO;
 import com.yuankj.mallchat.chat.domain.entity.*;
 import com.yuankj.mallchat.chat.domain.enums.MessageMarkActTypeEnum;
 import com.yuankj.mallchat.chat.domain.enums.MessageTypeEnum;
 import com.yuankj.mallchat.chat.domain.vo.request.chat.*;
+import com.yuankj.mallchat.chat.domain.vo.request.member.MemberReq;
 import com.yuankj.mallchat.chat.domain.vo.response.ChatMessageReadResp;
 import com.yuankj.mallchat.chat.domain.vo.response.ChatMessageResp;
 import com.yuankj.mallchat.chat.service.ChatService;
 import com.yuankj.mallchat.chat.service.ContactService;
+import com.yuankj.mallchat.chat.service.adapter.MemberAdapter;
 import com.yuankj.mallchat.chat.service.adapter.MessageAdapter;
 import com.yuankj.mallchat.chat.service.adapter.RoomAdapter;
 import com.yuankj.mallchat.chat.service.cache.RoomCache;
 import com.yuankj.mallchat.chat.service.cache.RoomGroupCache;
+import com.yuankj.mallchat.chat.service.helper.ChatMemberHelper;
 import com.yuankj.mallchat.chat.service.strategy.mark.AbstractMsgMarkStrategy;
 import com.yuankj.mallchat.chat.service.strategy.mark.MsgMarkFactory;
 import com.yuankj.mallchat.chat.service.strategy.msg.AbstractMsgHandler;
@@ -25,10 +29,15 @@ import com.yuankj.mallchat.chat.service.strategy.msg.MsgHandlerFactory;
 import com.yuankj.mallchat.chat.service.strategy.msg.RecallMsgHandler;
 import com.yuankj.mallchat.common.annocation.RedissonLock;
 import com.yuankj.mallchat.common.domain.enums.NormalOrNoEnum;
+import com.yuankj.mallchat.common.domain.vo.request.CursorPageBaseReq;
 import com.yuankj.mallchat.common.domain.vo.response.CursorPageBaseResp;
 import com.yuankj.mallchat.common.event.MessageSendEvent;
 import com.yuankj.mallchat.common.utils.AssertUtil;
+import com.yuankj.mallchat.user.dao.UserDao;
+import com.yuankj.mallchat.user.domain.entity.User;
+import com.yuankj.mallchat.user.domain.enums.ChatActiveStatusEnum;
 import com.yuankj.mallchat.user.domain.enums.RoleEnum;
+import com.yuankj.mallchat.user.domain.vo.response.ws.ChatMemberResp;
 import com.yuankj.mallchat.user.service.IRoleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +82,8 @@ public class ChatServiceImpl implements ChatService {
 	private RecallMsgHandler recallMsgHandler;
 	@Autowired
 	private ContactService contactService;
+	@Autowired
+	private UserDao userDao;
 	
 	
 	/**
@@ -197,6 +208,31 @@ public class ChatServiceImpl implements ChatService {
 			insert.setReadTime(new Date());
 			contactDao.save(insert);
 		}
+	}
+	
+	/**
+	 * @param memberUidList 
+	 * @param request
+	 * @return
+	 */
+	@Override
+	public CursorPageBaseResp<ChatMemberResp> getMemberPage(List<Long> memberUidList, MemberReq request) {
+		Pair<ChatActiveStatusEnum, String> pair= ChatMemberHelper.getCursorPair(request.getCursor());
+		ChatActiveStatusEnum activeStatusEnum = pair.getKey();
+		String timeCursor = pair.getValue();
+		List<ChatMemberResp> resultList=new ArrayList<>();//最终列表
+		Boolean isLast = Boolean.FALSE;
+		if (activeStatusEnum== ChatActiveStatusEnum.ONLINE) {
+			//在线列表
+			CursorPageBaseResp<User> cursorPage=userDao.getCursorPage(memberUidList,new CursorPageBaseReq(request.getPageSize(), timeCursor),ChatActiveStatusEnum.ONLINE);
+			resultList.addAll(MemberAdapter.buildMember(cursorPage.getList()));
+			timeCursor=cursorPage.getCursor();
+			isLast=cursorPage.getIsLast();
+		}
+		//获取成员角色id
+		List<Long> uidList = resultList.stream().map(ChatMemberResp::getUid).collect(Collectors.toList());
+		
+		return null;
 	}
 	
 	private void checkRecall(Long uid, Message message) {

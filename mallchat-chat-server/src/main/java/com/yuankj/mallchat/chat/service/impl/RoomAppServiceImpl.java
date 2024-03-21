@@ -2,7 +2,6 @@ package com.yuankj.mallchat.chat.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Pair;
-import com.sun.xml.internal.bind.v2.TODO;
 import com.yuankj.mallchat.chat.dao.ContactDao;
 import com.yuankj.mallchat.chat.dao.GroupMemberDao;
 import com.yuankj.mallchat.chat.dao.MessageDao;
@@ -11,11 +10,17 @@ import com.yuankj.mallchat.chat.domain.entity.*;
 import com.yuankj.mallchat.chat.domain.enums.GroupRoleAPPEnum;
 import com.yuankj.mallchat.chat.domain.enums.HotFlagEnum;
 import com.yuankj.mallchat.chat.domain.enums.RoomTypeEnum;
+import com.yuankj.mallchat.chat.domain.vo.request.chat.ChatMessageMemberReq;
+import com.yuankj.mallchat.chat.domain.vo.request.member.MemberDelReq;
+import com.yuankj.mallchat.chat.domain.vo.request.member.MemberReq;
+import com.yuankj.mallchat.chat.domain.vo.response.ChatMemberListResp;
 import com.yuankj.mallchat.chat.domain.vo.response.ChatRoomResp;
 import com.yuankj.mallchat.chat.domain.vo.response.MemberResp;
+import com.yuankj.mallchat.chat.service.ChatService;
 import com.yuankj.mallchat.chat.service.RoomAppService;
 import com.yuankj.mallchat.chat.service.RoomService;
 import com.yuankj.mallchat.chat.service.adapter.ChatAdapter;
+import com.yuankj.mallchat.chat.service.adapter.MemberAdapter;
 import com.yuankj.mallchat.chat.service.cache.HotRoomCache;
 import com.yuankj.mallchat.chat.service.cache.RoomCache;
 import com.yuankj.mallchat.chat.service.cache.RoomFriendCache;
@@ -27,11 +32,14 @@ import com.yuankj.mallchat.common.domain.vo.response.CursorPageBaseResp;
 import com.yuankj.mallchat.common.utils.AssertUtil;
 import com.yuankj.mallchat.user.dao.UserDao;
 import com.yuankj.mallchat.user.domain.entity.User;
+import com.yuankj.mallchat.user.domain.vo.response.ws.ChatMemberResp;
 import com.yuankj.mallchat.user.service.cache.UserCache;
 import com.yuankj.mallchat.user.service.cache.UserInfoCache;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
+
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
@@ -68,6 +76,8 @@ public class RoomAppServiceImpl implements RoomAppService {
 	private GroupMemberDao groupMemberDao;
 	@Autowired
 	private UserDao userDao;
+	@Autowired
+	private ChatService chatService;
 	/**
 	 * @param request 
 	 * @param uid
@@ -198,7 +208,7 @@ public class RoomAppServiceImpl implements RoomAppService {
 	
 	/**
 	 * @param uid 
-	 * @param id
+	 * @param roomId
 	 * @return
 	 */
 	@Override
@@ -246,6 +256,57 @@ public class RoomAppServiceImpl implements RoomAppService {
 				.groupName(roomGroup.getName())
 				.onlineNum(onlineNum)
 				.role(groupRole.getType()).build();
+	}
+	
+	/**
+	 * @param request 
+	 * @return
+	 */
+	@Override
+	public CursorPageBaseResp<ChatMemberResp> getMemberPage(MemberReq request) {
+		Room room = roomCache.get(request.getRoomId());
+		AssertUtil.isNotEmpty(room, "房间号有误");
+		List<Long> memberUidList;
+		if (isHotGroup(room)) {
+			// 全员群展示所有用户
+			memberUidList = null;
+		} else {// 只展示房间内的群成员
+			RoomGroup roomGroup = roomGroupCache.get(request.getRoomId());
+			memberUidList=groupMemberDao.getMemberUidList(roomGroup.getId());
+			
+		}
+		return chatService.getMemberPage(memberUidList, request);
+	}
+	
+	/**
+	 * @param request 
+	 * @return
+	 */
+	@Override
+	@Cacheable(cacheNames = "member",key = "'memberList'+#request.roomId")
+	public List<ChatMemberListResp> getMemberList(ChatMessageMemberReq request) {
+		Room room = roomCache.get(request.getRoomId());
+		AssertUtil.isNotEmpty(room,"房间号有误");
+		if (isHotGroup(room)) {
+			//全员群展示苏哦有用户100名
+			List<User> memberList = userDao.getMemberList();
+			return MemberAdapter.buildMemberList(memberList);
+		}else {
+			RoomGroup roomGroup = roomGroupCache.get(request.getRoomId());
+			List<Long> memberUidList = groupMemberDao.getMemberUidList(roomGroup.getId());
+			Map<Long, User> batch = userInfoCache.getBatch(memberUidList);
+			return MemberAdapter.buildMemberList(batch);
+		}
+		
+	}
+	
+	/**
+	 * @param uid 
+	 * @param request
+	 */
+	@Override
+	public void delMember(Long uid, MemberDelReq request) {
+		
 	}
 	
 	private GroupRoleAPPEnum getGroupRole(Long uid, RoomGroup roomGroup, Room room) {

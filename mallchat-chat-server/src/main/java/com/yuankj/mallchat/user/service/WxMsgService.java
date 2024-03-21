@@ -10,7 +10,6 @@ import com.yuankj.mallchat.user.dao.UserDao;
 import com.yuankj.mallchat.user.domain.entity.User;
 import com.yuankj.mallchat.user.service.adapter.TextBuilder;
 import com.yuankj.mallchat.user.service.adapter.UserAdapter;
-import jodd.net.URLCoder;
 import lombok.extern.slf4j.Slf4j;
 
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
@@ -22,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-import service.MQProducer;
+import com.yuankj.mallchat.service.MQProducer;
 
 import java.net.URLEncoder;
 import java.util.Objects;

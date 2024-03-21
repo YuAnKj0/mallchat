@@ -1,9 +1,16 @@
 package com.yuankj.mallchat.chat.service;
 
+import com.yuankj.mallchat.chat.domain.vo.request.chat.ChatMessageMemberReq;
+import com.yuankj.mallchat.chat.domain.vo.request.member.MemberDelReq;
+import com.yuankj.mallchat.chat.domain.vo.request.member.MemberReq;
+import com.yuankj.mallchat.chat.domain.vo.response.ChatMemberListResp;
 import com.yuankj.mallchat.chat.domain.vo.response.ChatRoomResp;
 import com.yuankj.mallchat.chat.domain.vo.response.MemberResp;
 import com.yuankj.mallchat.common.domain.vo.request.CursorPageBaseReq;
 import com.yuankj.mallchat.common.domain.vo.response.CursorPageBaseResp;
+import com.yuankj.mallchat.user.domain.vo.response.ws.ChatMemberResp;
+
+import java.util.List;
 
 /**
  * @author Ykj
@@ -19,4 +26,10 @@ public interface RoomAppService {
 	ChatRoomResp getContactDetailByFriend(Long uid, Long uid1);
 	
 	MemberResp getGroupDetail(Long uid, long id);
+	
+	CursorPageBaseResp<ChatMemberResp> getMemberPage(MemberReq request);
+	
+	List<ChatMemberListResp> getMemberList(ChatMessageMemberReq request);
+	
+	void delMember(Long uid, MemberDelReq request);
 }

@@ -1,5 +1,7 @@
 package com.yuankj.mallchat.common.utils.sensitiveWord;
 
+import org.springframework.stereotype.Component;
+
 import java.util.List;
 
 /**
@@ -7,7 +9,7 @@ import java.util.List;
  * @date 2023-10-21/12:06
  * @apiNote  敏感词引导类
  */
-
+@Component
 public class SensitiveWordBs {
 	
 	/**

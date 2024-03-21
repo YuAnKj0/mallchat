@@ -50,19 +50,19 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 	@Autowired
-	private final UserCache userCache;
+	private UserCache userCache;
 	@Autowired
-	private final UserBackpackDao userBackpackDao;
+	private UserBackpackDao userBackpackDao;
 	@Autowired
-	private final UserSummaryCache userSummaryCache;
+	private UserSummaryCache userSummaryCache;
 	@Autowired
-	private final ItemCache itemCache;
+	private ItemCache itemCache;
 	@Autowired
-	private final SensitiveWordBs sensitiveWordBs;
+	private SensitiveWordBs sensitiveWordBs;
 	@Autowired
-	private final UserDao userDao;
+	private UserDao userDao;
 	@Autowired
-	private final ApplicationEventPublisher applicationEventPublisher;
+	private  ApplicationEventPublisher applicationEventPublisher;
 	@Autowired
 	private ItemConfigDao itemConfigDao;
     @Autowired

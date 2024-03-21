@@ -1,6 +1,6 @@
 package com.yuankj.mallchat.common.config;
 
-import annotation.SecureInvokeConfigurer;
+import com.yuankj.mallchat.annotation.SecureInvokeConfigurer;
 import com.yuankj.mallchat.common.factory.MyThreadFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

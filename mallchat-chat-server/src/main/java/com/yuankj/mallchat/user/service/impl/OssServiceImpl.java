@@ -1,8 +1,8 @@
 package com.yuankj.mallchat.user.service.impl;
 
-import com.mallchat.oss.MinIOTemplate;
-import com.mallchat.oss.domain.OssReq;
-import com.mallchat.oss.domain.OssResp;
+import com.yuankj.mallchat.MinIOTemplate;
+import com.yuankj.mallchat.domain.OssReq;
+import com.yuankj.mallchat.domain.OssResp;
 import com.yuankj.mallchat.common.utils.AssertUtil;
 import com.yuankj.mallchat.user.domain.enums.OssSceneEnum;
 import com.yuankj.mallchat.user.domain.vo.request.oss.UploadUrlReq;
