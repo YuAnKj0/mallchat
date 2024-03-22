@@ -13,6 +13,7 @@ import com.yuankj.mallchat.chat.domain.enums.HotFlagEnum;
 import com.yuankj.mallchat.chat.domain.enums.RoomTypeEnum;
 import com.yuankj.mallchat.chat.domain.vo.request.chat.ChatMessageMemberReq;
 import com.yuankj.mallchat.chat.domain.vo.request.chat.GroupAddReq;
+import com.yuankj.mallchat.chat.domain.vo.request.member.MemberAddReq;
 import com.yuankj.mallchat.chat.domain.vo.request.member.MemberDelReq;
 import com.yuankj.mallchat.chat.domain.vo.request.member.MemberReq;
 import com.yuankj.mallchat.chat.domain.vo.response.ChatMemberListResp;
@@ -28,6 +29,7 @@ import com.yuankj.mallchat.chat.service.adapter.RoomAdapter;
 import com.yuankj.mallchat.chat.service.cache.*;
 import com.yuankj.mallchat.chat.service.strategy.msg.AbstractMsgHandler;
 import com.yuankj.mallchat.chat.service.strategy.msg.MsgHandlerFactory;
+import com.yuankj.mallchat.common.annocation.RedissonLock;
 import com.yuankj.mallchat.common.domain.vo.request.CursorPageBaseReq;
 import com.yuankj.mallchat.common.domain.vo.response.CursorPageBaseResp;
 import com.yuankj.mallchat.common.event.GroupMemberAddEvent;
@@ -48,6 +50,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 
 import javax.validation.constraints.NotNull;
@@ -366,6 +369,32 @@ public class RoomAppServiceImpl implements RoomAppService {
 		// 发送邀请加群消息==》触发每个人的会话
 		applicationEventPublisher.publishEvent(new GroupMemberAddEvent(this, roomGroup, groupMembers, uid));
 		return roomGroup.getRoomId();
+	}
+	
+	/**
+	 * @param uid 
+	 * @param request
+	 */
+	@Override
+	@RedissonLock(key = "#request.roomId")
+	@Transactional(rollbackFor = Exception.class)
+	public void addMember(Long uid, MemberAddReq request) {
+		Room room = roomCache.get(request.getRoomId());
+		AssertUtil.isNotEmpty(room, "房间号有误");
+		AssertUtil.isFalse(isHotGroup(room), "全员群无需邀请好友");
+		RoomGroup roomGroup = roomGroupCache.get(request.getRoomId());
+		AssertUtil.isNotEmpty(roomGroup, "房间号有误");
+		GroupMember self = groupMemberDao.getMember(roomGroup.getId(), uid);
+		AssertUtil.isNotEmpty(self, "您不是群成员");
+		List<Long> memberBatch = groupMemberDao.getMemberBatch(roomGroup.getId(), request.getUidList());
+		Set<Long> existUid = new HashSet<>(memberBatch);
+		List<Long> waitAddUidList = request.getUidList().stream().filter(a -> !existUid.contains(a)).distinct().collect(Collectors.toList());
+		if (CollectionUtils.isEmpty(waitAddUidList)) {
+			return;
+		}
+		List<GroupMember> groupMembers = MemberAdapter.buildMemberAdd(roomGroup.getId(), waitAddUidList);
+		groupMemberDao.saveBatch(groupMembers);
+		applicationEventPublisher.publishEvent(new GroupMemberAddEvent(this, roomGroup, groupMembers, uid));
 	}
 	
 	private boolean hasPower(GroupMember member) {

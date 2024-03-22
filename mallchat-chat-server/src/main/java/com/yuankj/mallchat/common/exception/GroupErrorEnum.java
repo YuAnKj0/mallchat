@@ -18,14 +18,15 @@ public enum GroupErrorEnum implements ErrorEnum {
     ;
     private final Integer code;
     private final String msg;
-
+    
     @Override
     public Integer getErrorCode() {
         return this.code;
     }
-
+    
     @Override
     public String getErrorMsg() {
         return this.msg;
     }
 }
+

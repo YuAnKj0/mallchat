@@ -2,6 +2,7 @@ package com.yuankj.mallchat.chat.service;
 
 import com.yuankj.mallchat.chat.domain.vo.request.chat.ChatMessageMemberReq;
 import com.yuankj.mallchat.chat.domain.vo.request.chat.GroupAddReq;
+import com.yuankj.mallchat.chat.domain.vo.request.member.MemberAddReq;
 import com.yuankj.mallchat.chat.domain.vo.request.member.MemberDelReq;
 import com.yuankj.mallchat.chat.domain.vo.request.member.MemberReq;
 import com.yuankj.mallchat.chat.domain.vo.response.ChatMemberListResp;
@@ -35,4 +36,6 @@ public interface RoomAppService {
 	void delMember(Long uid, MemberDelReq request);
 	
 	Long addGroup(Long uid, GroupAddReq request);
+	
+	void addMember(Long uid, MemberAddReq request);
 }

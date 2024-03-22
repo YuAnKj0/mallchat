@@ -2,6 +2,9 @@ package com.yuankj.mallchat.chat.controller;
 
 import com.yuankj.mallchat.chat.domain.vo.request.chat.ChatMessageMemberReq;
 import com.yuankj.mallchat.chat.domain.vo.request.chat.GroupAddReq;
+import com.yuankj.mallchat.chat.domain.vo.request.domain.AdminAddReq;
+import com.yuankj.mallchat.chat.domain.vo.request.domain.AdminRevokeReq;
+import com.yuankj.mallchat.chat.domain.vo.request.member.MemberAddReq;
 import com.yuankj.mallchat.chat.domain.vo.request.member.MemberDelReq;
 import com.yuankj.mallchat.chat.domain.vo.request.member.MemberExitReq;
 import com.yuankj.mallchat.chat.domain.vo.request.member.MemberReq;
