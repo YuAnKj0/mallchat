@@ -1,6 +1,7 @@
 package com.yuankj.mallchat.chat.service;
 
 import com.yuankj.mallchat.chat.domain.dto.MsgReadInfoDTO;
+import com.yuankj.mallchat.chat.domain.entity.Message;
 import com.yuankj.mallchat.chat.domain.vo.request.chat.*;
 import com.yuankj.mallchat.chat.domain.vo.request.member.MemberReq;
 import com.yuankj.mallchat.chat.domain.vo.response.ChatMessageReadResp;
@@ -28,7 +29,9 @@ public interface ChatService {
 	 */
 	Long sendMsg(ChatMessageReq request, Long uid);
 	
-	ChatMessageResp getMsgResp(Long msgId, Long uid);
+	ChatMessageResp getMsgResp(Long msgId, Long receiveUid);
+	
+	ChatMessageResp getMsgResp(Message message, Long receiveUid);
 	
 	void setMsgMark(ChatMessageMarkReq request, Long uid);
 	

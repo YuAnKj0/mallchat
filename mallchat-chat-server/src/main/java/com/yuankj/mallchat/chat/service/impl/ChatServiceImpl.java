@@ -132,8 +132,18 @@ public class ChatServiceImpl implements ChatService {
 	
 	@Override
 	public ChatMessageResp getMsgResp(Long msgId, Long receiveUid) {
-		Message message = messageDao.getById(msgId);
-		return CollUtil.getFirst(getMsgRespBatch(Collections.singletonList(message), receiveUid));
+		Message msg = messageDao.getById(msgId);
+		return getMsgResp(msg, receiveUid);
+	}
+	
+	/**
+	 * @param message 
+	 * @param receiveUid
+	 * @return
+	 */
+	@Override
+	public ChatMessageResp getMsgResp(Message message, Long receiveUid) {
+		return CollUtil.getFirst(getMsgRespBatch(Collections.singletonList(message), receiveUid));;
 	}
 	
 	@Override
