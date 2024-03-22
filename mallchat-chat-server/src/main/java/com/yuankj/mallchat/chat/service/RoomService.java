@@ -1,6 +1,7 @@
 package com.yuankj.mallchat.chat.service;
 
 import com.yuankj.mallchat.chat.domain.entity.RoomFriend;
+import com.yuankj.mallchat.chat.domain.entity.RoomGroup;
 
 import java.util.List;
 
@@ -16,4 +17,6 @@ public interface RoomService {
 	void disableFriendRoom(List<Long> list);
 	
 	RoomFriend getFriendRoom(Long uid, Long friendUid);
+	
+	RoomGroup createGroupRoom(Long uid);
 }

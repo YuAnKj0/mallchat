@@ -1,6 +1,9 @@
 package com.yuankj.mallchat.chat.dao;
 
 
+import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yuankj.mallchat.chat.domain.entity.Message;
 import com.yuankj.mallchat.chat.domain.enums.MessageStatusEnum;
@@ -11,6 +14,7 @@ import com.yuankj.mallchat.common.utils.CursorUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -33,5 +37,22 @@ public class MessageDao extends ServiceImpl<MessageMapper, Message> {
 				.eq(Message::getRoomId, roomId)
 				.gt(Objects.nonNull(readTime), Message::getCreateTime, readTime)
 				.count();
+	}
+	
+	/**
+	 * 根据房间ID逻辑删除消息
+	 * @param roomId
+	 * @param uidList
+	 * @return
+	 */
+	public Boolean removeByRoomId(Long roomId, List<Long> uidList) {
+		if (CollectionUtil.isNotEmpty(uidList)) {
+			LambdaUpdateWrapper<Message> wrapper = new UpdateWrapper<Message>().lambda()
+					.eq(Message::getRoomId, roomId)
+					.in(Message::getFromUid, uidList)
+					.set(Message::getStatus, MessageStatusEnum.DELETE.getStatus());
+			return this.update(wrapper);
+		}
+		return false;
 	}
 }

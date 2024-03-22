@@ -8,37 +8,46 @@ import com.yuankj.mallchat.chat.dao.MessageDao;
 import com.yuankj.mallchat.chat.domain.dto.RoomBaseInfo;
 import com.yuankj.mallchat.chat.domain.entity.*;
 import com.yuankj.mallchat.chat.domain.enums.GroupRoleAPPEnum;
+import com.yuankj.mallchat.chat.domain.enums.GroupRoleEnum;
 import com.yuankj.mallchat.chat.domain.enums.HotFlagEnum;
 import com.yuankj.mallchat.chat.domain.enums.RoomTypeEnum;
 import com.yuankj.mallchat.chat.domain.vo.request.chat.ChatMessageMemberReq;
+import com.yuankj.mallchat.chat.domain.vo.request.chat.GroupAddReq;
 import com.yuankj.mallchat.chat.domain.vo.request.member.MemberDelReq;
 import com.yuankj.mallchat.chat.domain.vo.request.member.MemberReq;
 import com.yuankj.mallchat.chat.domain.vo.response.ChatMemberListResp;
 import com.yuankj.mallchat.chat.domain.vo.response.ChatRoomResp;
 import com.yuankj.mallchat.chat.domain.vo.response.MemberResp;
+import com.yuankj.mallchat.chat.domain.vo.response.ws.WSMemberChange;
 import com.yuankj.mallchat.chat.service.ChatService;
 import com.yuankj.mallchat.chat.service.RoomAppService;
 import com.yuankj.mallchat.chat.service.RoomService;
 import com.yuankj.mallchat.chat.service.adapter.ChatAdapter;
 import com.yuankj.mallchat.chat.service.adapter.MemberAdapter;
-import com.yuankj.mallchat.chat.service.cache.HotRoomCache;
-import com.yuankj.mallchat.chat.service.cache.RoomCache;
-import com.yuankj.mallchat.chat.service.cache.RoomFriendCache;
-import com.yuankj.mallchat.chat.service.cache.RoomGroupCache;
+import com.yuankj.mallchat.chat.service.adapter.RoomAdapter;
+import com.yuankj.mallchat.chat.service.cache.*;
 import com.yuankj.mallchat.chat.service.strategy.msg.AbstractMsgHandler;
 import com.yuankj.mallchat.chat.service.strategy.msg.MsgHandlerFactory;
 import com.yuankj.mallchat.common.domain.vo.request.CursorPageBaseReq;
 import com.yuankj.mallchat.common.domain.vo.response.CursorPageBaseResp;
+import com.yuankj.mallchat.common.event.GroupMemberAddEvent;
+import com.yuankj.mallchat.common.exception.GroupErrorEnum;
 import com.yuankj.mallchat.common.utils.AssertUtil;
 import com.yuankj.mallchat.user.dao.UserDao;
 import com.yuankj.mallchat.user.domain.entity.User;
+import com.yuankj.mallchat.user.domain.enums.RoleEnum;
+import com.yuankj.mallchat.user.domain.enums.WSBaseResp;
 import com.yuankj.mallchat.user.domain.vo.response.ws.ChatMemberResp;
+import com.yuankj.mallchat.user.service.IRoleService;
 import com.yuankj.mallchat.user.service.cache.UserCache;
 import com.yuankj.mallchat.user.service.cache.UserInfoCache;
+import com.yuankj.mallchat.user.service.impl.PushService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import javax.validation.constraints.NotNull;
@@ -78,6 +87,14 @@ public class RoomAppServiceImpl implements RoomAppService {
 	private UserDao userDao;
 	@Autowired
 	private ChatService chatService;
+	@Autowired
+	private IRoleService iRoleService;
+	@Autowired
+	private GroupMemberCache groupMemberCache;
+	@Autowired
+	private PushService pushService;
+	@Autowired
+	private ApplicationEventPublisher applicationEventPublisher;
 	/**
 	 * @param request 
 	 * @param uid
@@ -305,8 +322,56 @@ public class RoomAppServiceImpl implements RoomAppService {
 	 * @param request
 	 */
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public void delMember(Long uid, MemberDelReq request) {
-		
+		Room room = roomCache.get(request.getRoomId());
+		AssertUtil.isNotEmpty(room,"房间号有误");
+		RoomGroup roomGroup = roomGroupCache.get(request.getRoomId());
+		AssertUtil.isNotEmpty(roomGroup,"群组不存在");
+		GroupMember member = groupMemberDao.getMember(roomGroup.getId(), uid);
+		AssertUtil.isNotEmpty(member, GroupErrorEnum.USER_NOT_IN_GROUP);
+		// 1. 判断被移除的人是否是群主或者管理员  （群主不可以被移除，管理员只能被群主移除）
+		Long removedId = request.getUid();
+		//1.1群主，非法操作
+		AssertUtil.isFalse(groupMemberDao.isLord(roomGroup.getId(), removedId),GroupErrorEnum.NOT_ALLOWED_FOR_REMOVE);
+		//1.2管理员，判断是否是群主操作
+		if (groupMemberDao.isManager(roomGroup.getId(), removedId)) {
+			Boolean isLord = groupMemberDao.isLord(roomGroup.getId(), uid);
+			AssertUtil.isTrue(isLord, GroupErrorEnum.NOT_ALLOWED_FOR_REMOVE);
+		}
+		// 1.3 普通成员 判断是否有权限操作
+		AssertUtil.isTrue(hasPower(member),GroupErrorEnum.NOT_ALLOWED_FOR_REMOVE);
+		GroupMember member4remove = groupMemberDao.getMember(roomGroup.getId(), removedId);
+		AssertUtil.isNotEmpty(member4remove, "用户已经移除");
+		groupMemberDao.removeById(member4remove.getId());
+		// 发送移除事件告知群成员
+		List<Long> memberUidList = groupMemberCache.getMemberUidList(roomGroup.getId());
+		WSBaseResp<WSMemberChange> ws = MemberAdapter.buildMemberRemoveWS(roomGroup.getRoomId(), member4remove.getUid());
+		pushService.sendPushMsg(ws,memberUidList);
+		groupMemberCache.evictMemberUidList(room.getId());
+	}
+	
+	/**
+	 * @param uid 
+	 * @param request
+	 * @return
+	 */
+	@Override
+	@Transactional
+	public Long addGroup(Long uid, GroupAddReq request) {
+		RoomGroup roomGroup=roomService.createGroupRoom(uid);
+		// 批量保存群成员
+		List<GroupMember> groupMembers = RoomAdapter.buildGroupMemberBatch(request.getUidList(), roomGroup.getId());
+		groupMemberDao.saveBatch(groupMembers);
+		// 发送邀请加群消息==》触发每个人的会话
+		applicationEventPublisher.publishEvent(new GroupMemberAddEvent(this, roomGroup, groupMembers, uid));
+		return roomGroup.getRoomId();
+	}
+	
+	private boolean hasPower(GroupMember member) {
+		return Objects.equals(member.getRole(), GroupRoleEnum.LEADER.getType())
+				|| Objects.equals(member.getRole(), GroupRoleEnum.MANAGER.getType())
+				|| iRoleService.hasPower(member.getUid(), RoleEnum.ADMIN);
 	}
 	
 	private GroupRoleAPPEnum getGroupRole(Long uid, RoomGroup roomGroup, Room room) {
